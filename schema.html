@@ -14,7 +14,8 @@
             func: { value: "" },
             schematitle: { value: "" },
             strictMode: { value: false },
-            removeDollarSchema: { value: true }
+            removeDollarSchema: { value: true },
+            sendOnInvalid: { value: false }
         },
         
         label: function() {
@@ -182,6 +183,11 @@
     <div class="form-row">
         <label for="node-input-strictMode">Strict mode?</label>
         <input type="checkbox" id="node-input-strictMode"/>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-sendOnInvalid">Send msg when invalid?</label>
+        <input type="checkbox" id="node-input-sendOnInvalid"/>
     </div>
 
     <div class="form-row">

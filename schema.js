@@ -9,6 +9,7 @@ module.exports = function (RED) {
         this.checkentireobject = n.checkentireobject;
         this.strictMode = n.strictMode;
         this.removeDollarSchema = n.removeDollarSchema;
+        this.sendOnInvalid = n.sendOnInvalid;
 
         var node = this;
 
@@ -47,7 +48,10 @@ module.exports = function (RED) {
                     if (!valid) {
                         node.status({ fill: "red", shape: "dot", text: "invalid" });
                         msg['error'] = validate.errors;
-                        done("validation errors", msg)
+                        if (node.sendOnInvalid) {
+                            send(msg);
+                        }
+                        done()
                     }
                     else {
                         node.status({ fill: "green", shape: "dot", text: "valid" });
@@ -103,16 +107,20 @@ module.exports = function (RED) {
                     if (prop !== undefined) {
                         runValidate(prop)
                     } else {
-                        send(msg)
-                        node.status({ fill: "blue", shape: "dot", text: "property missing" });
-                        done(`property ${node.property} undefined on msg`, msg)
+                        if (node.sendOnInvalid) {
+                            send(msg)
+                        }
+                        node.status({ fill: "blue", shape: "dot", text: `property missing ${node.property}` });
+                        done()
                     }
                 }
             } catch (err) {
-                msg.error = err
-                send(msg)
+                if (node.sendOnInvalid) {
+                    msg.error = err
+                    send(msg)
+                }
                 node.status({ fill: "blue", shape: "ring", text: "schema error" });
-                done("failed to scan schema", msg);
+                done();
             }
         });
     }

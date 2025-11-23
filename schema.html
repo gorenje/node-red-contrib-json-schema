@@ -13,6 +13,8 @@
             checkentireobject: { value: false }, /* deprecated but siliently supported */
             func: { value: "" },
             schematitle: { value: "" },
+            strictMode: { value: false },
+            removeDollarSchema: { value: true }
         },
         
         label: function() {
@@ -172,12 +174,19 @@
     </div>
 
     <div class="form-row">
-        <label for="node-input-property">Object or Property</label>
+        <label for="node-input-property">Property or Obj</label>
+        <input type="text" id="node-input-property"/>
+        <input type="hidden" id="node-input-propertyType"/>
     </div>
 
     <div class="form-row">
-        <input type="text" id="node-input-property"/>
-        <input type="hidden" id="node-input-propertyType"/>
+        <label for="node-input-strictMode">Strict mode?</label>
+        <input type="checkbox" id="node-input-strictMode"/>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-removeDollarSchema">Remove `$schema`?</label>
+        <input type="checkbox" id="node-input-removeDollarSchema"/>
     </div>
 
     <div class="form-row" style="margin-bottom: 0px;">

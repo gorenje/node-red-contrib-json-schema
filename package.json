@@ -7,7 +7,7 @@
   "dependencies": {
     "ajv": "^8.12.0",
     "global": "^4.3.2",
-    "@adobe/jsonschema2md": "^7.1.5"
+    "@adobe/jsonschema2md": "^8.0.7"
   },
 
   "deprecated": false,

@@ -7,6 +7,8 @@ module.exports = function (RED) {
         this.property = n.property;
         this.propertyType = n.propertyType;
         this.checkentireobject = n.checkentireobject;
+        this.strictMode = n.strictMode;
+        this.removeDollarSchema = n.removeDollarSchema;
 
         var node = this;
 
@@ -16,9 +18,22 @@ module.exports = function (RED) {
 
         node.on('input', function (msg, send, done) {
             try {
-                var schema = typeof node.func === 'string' && node.func.trim().length ? JSON.parse(node.func) : typeof msg.schema === 'string' ? JSON.parse(msg.schema) : msg.schema;                
+                var schema = typeof node.func === 'string' && node.func.trim().length ? JSON.parse(node.func) : {}
+                
+                if (msg.schema) {
+                    if ( typeof msg.schema === 'string' ) {
+                        schema = JSON.parse(msg.schema)
+                    } else {
+                        schema = msg.schema
+                    }
+                }
 
+                if (node.removeDollarSchema) {
+                    delete schema['$schema'] // this is just a headache.
+                }
+                
                 var ajv = new Ajv({
+                    strict: !!node.strictMode,
                     allErrors: true,
                     messages: true,
                     allowUnionTypes: true
@@ -30,11 +45,13 @@ module.exports = function (RED) {
                     var valid = validate(prop);
 
                     if (!valid) {
+                        node.status({ fill: "red", shape: "dot", text: "invalid" });
                         msg['error'] = validate.errors;
                         done("validation errors", msg)
                     }
                     else {
-                        delete msg.schema;
+                        node.status({ fill: "green", shape: "dot", text: "valid" });
+                        delete msg.schema
                         send(msg);
                         done()
                     }
@@ -86,11 +103,15 @@ module.exports = function (RED) {
                     if (prop !== undefined) {
                         runValidate(prop)
                     } else {
-                        done("prop undefined", msg)
+                        send(msg)
+                        node.status({ fill: "blue", shape: "dot", text: "property missing" });
+                        done(`property ${node.property} undefined on msg`, msg)
                     }
                 }
             } catch (err) {
                 msg.error = err
+                send(msg)
+                node.status({ fill: "blue", shape: "ring", text: "schema error" });
                 done("failed to scan schema", msg);
             }
         });

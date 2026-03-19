@@ -50,8 +50,11 @@ module.exports = function (RED) {
                         msg['error'] = validate.errors;
                         if (node.sendOnInvalid) {
                             send(msg);
+                            done()
+                        } else {
+                            done("validation errors", msg)
                         }
-                        done()
+                        
                     }
                     else {
                         node.status({ fill: "green", shape: "dot", text: "valid" });
@@ -107,20 +110,24 @@ module.exports = function (RED) {
                     if (prop !== undefined) {
                         runValidate(prop)
                     } else {
+                        node.status({ fill: "blue", shape: "dot", text: `property missing ${node.property}` });
                         if (node.sendOnInvalid) {
                             send(msg)
+                            done()
+                        } else {
+                            done(`property ${node.property} undefined on msg`, msg)
                         }
-                        node.status({ fill: "blue", shape: "dot", text: `property missing ${node.property}` });
-                        done()
                     }
                 }
             } catch (err) {
+                node.status({ fill: "blue", shape: "ring", text: "schema error" });
                 if (node.sendOnInvalid) {
                     msg.error = err
                     send(msg)
+                    done()
+                } else {
+                    done("failed to scan schema", msg)
                 }
-                node.status({ fill: "blue", shape: "ring", text: "schema error" });
-                done();
             }
         });
     }
